@@ -1,11 +1,14 @@
 package com.tim4it.classroom.attendance.v1.controller;
 
-import com.tim4it.classroom.attendance.dto.v1.ClassroomCheckIn;
+import com.tim4it.classroom.attendance.dto.v1.request.CheckInRequest;
+import com.tim4it.classroom.attendance.dto.v1.response.ClassroomCheckIn;
+import com.tim4it.classroom.attendance.util.Helper;
 import com.tim4it.classroom.attendance.v1.service.CheckIn;
+import io.micronaut.http.HttpRequest;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.http.multipart.CompletedFileUpload;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -16,7 +19,6 @@ import jakarta.inject.Inject;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -28,14 +30,22 @@ public class CheckInController {
     @NonNull
     final CheckIn checkIn;
 
-    @Operation(summary = "Payment comparison - compare two files and provide reports")
+    @Operation(summary = "Current activity for the specific classroom")
     @ApiResponse(responseCode = "200", description = "Payment comparison succeed!",
             content = @Content(mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ClassroomCheckIn.class)))
     @ApiResponse(responseCode = "400", description = "Bad request")
-    @Post(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA, produces = MediaType.APPLICATION_JSON)
-    public Mono<ClassroomCheckIn> checkIn(Publisher<CompletedFileUpload> file) {
-//        return checkIn.upload(file);
-        return null;
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "404", description = "Not found")
+    @Post(value = "/check-in", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+    public Mono<ClassroomCheckIn> checkIn(@NonNull HttpRequest<?> request,
+                                          @NonNull @Body CheckInRequest checkInRequest) {
+        return Mono
+                .fromCallable(() -> Helper.validateCurrentDateTime(checkInRequest.getTime()))
+                .flatMap(currentTime ->
+                        checkIn.save(request.getHeaders(),
+                                checkInRequest.getClassroomId(),
+                                checkInRequest.getLectureId(),
+                                currentTime));
     }
 }
