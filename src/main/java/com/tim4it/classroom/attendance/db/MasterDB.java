@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Fake master DB - no-sql based - for this specific assignment it is very fast - O(1) access time for current API data
+ */
 @UtilityClass
 public class MasterDB {
 
@@ -25,7 +28,7 @@ public class MasterDB {
                     .yearOfBirth(LocalDate.of(2000, 5, 13))
                     .year(2)
                     .department("Computer science")
-                    .classroomAccess(List.of(""))
+                    .classroomAccess(List.of("b3ecbc16-4ec7-11ed-bdc3-0242ac260104", "37f6a62e-4ec4-11ed-bdc3-0242ac120002"))
                     .build(),
             "c8c9b0c0-4ec3-11ed-bdc3-0242ac120002",
             Student.builder()
@@ -37,7 +40,7 @@ public class MasterDB {
                     .yearOfBirth(LocalDate.of(1999, 3, 13))
                     .year(3)
                     .department("Chemistry")
-                    .classroomAccess(List.of(""))
+                    .classroomAccess(List.of("6fc9218f-5eb3-4b28-8e88-11060870152d"))
                     .build(),
             "fea5cbfc-4ec3-11ed-bdc3-0242ac120002",
             Student.builder()

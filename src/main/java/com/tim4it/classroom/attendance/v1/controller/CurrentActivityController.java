@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@OpenAPIDefinition(info = @Info(description = "Current activity controller V1"))
+@OpenAPIDefinition(info = @Info(description = "Current activity for classroom version v1"))
 @Controller("/v1")
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class CurrentActivityController {
@@ -29,7 +29,7 @@ public class CurrentActivityController {
     @NonNull
     final CurrentActivity currentActivity;
 
-    @Operation(summary = "Current activity")
+    @Operation(summary = "Current classroom activity - show time based lectures")
     @ApiResponse(responseCode = "200", description = "Current activity data",
             content = @Content(mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = CurrentActivityData.class)))

@@ -12,6 +12,7 @@ public class StudentImpl implements Student {
 
     @Override
     public Mono<com.tim4it.classroom.attendance.dto.v1.Student> findById(@NonNull String studentId) {
+
         return Mono.fromCallable(() ->
                 MasterDB.getStudents()
                         .getOrDefault(studentId, com.tim4it.classroom.attendance.dto.v1.Student.builder().build()));

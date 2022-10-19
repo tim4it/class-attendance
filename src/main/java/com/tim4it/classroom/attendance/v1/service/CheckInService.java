@@ -4,8 +4,8 @@ import com.tim4it.classroom.attendance.dto.v1.Classroom;
 import com.tim4it.classroom.attendance.dto.v1.Lecture;
 import com.tim4it.classroom.attendance.dto.v1.response.ClassroomCheckIn;
 import com.tim4it.classroom.attendance.util.Helper;
+import com.tim4it.classroom.attendance.util.Pair;
 import com.tim4it.classroom.attendance.v1.entity.ClassRoom;
-import com.tim4it.classroom.attendance.v1.entity.Student;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
@@ -29,9 +29,6 @@ public class CheckInService implements CheckIn {
     final Auth auth;
 
     @NonNull
-    final Student student;
-
-    @NonNull
     final ClassRoom classRoom;
 
     @Override
@@ -39,25 +36,16 @@ public class CheckInService implements CheckIn {
                                        @NonNull String classroomId,
                                        @NonNull String lectureId,
                                        @NonNull LocalDateTime time) {
-        return Mono.fromCallable(() -> Helper.optString(headers.get(HttpHeaders.AUTHORIZATION)))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .switchIfEmpty(Mono
-                        .error(new HttpStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing!")))
-                .map(auth::verifyAndGetStudentId)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .switchIfEmpty(Mono
-                        .error(new HttpStatusException(HttpStatus.UNAUTHORIZED, "Invalid authorization!")))
-                .flatMap(student::findById)
-                .filter(student -> Helper.optString(student.getId()).isPresent())
-                .switchIfEmpty(Mono
-                        .error(new HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid student data!")))
-                .flatMap(userVerified -> classRoom.findById(classroomId))
-                .filter(classRoom -> Helper.optString(classRoom.getId()).isPresent())
+        return auth.verifyStudent(headers)
+                .flatMap(studentVerified ->
+                        Mono.zip(
+                                classRoom.findById(classroomId),
+                                Mono.just(studentVerified),
+                                Pair::new))
+                .filter(pair -> Helper.optString(pair.getFirst().getId()).isPresent())
                 .switchIfEmpty(Mono
                         .error(new HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid classroom data!")))
-                .mapNotNull(classroom -> validateLectureTime(classroom, lectureId, time));
+                .mapNotNull(pair -> validateLectureTime(pair.getFirst(), pair.getSecond(), lectureId, time));
     }
 
     /**
@@ -69,8 +57,10 @@ public class CheckInService implements CheckIn {
      * @return classroom check in data - only if student can check in
      */
     private ClassroomCheckIn validateLectureTime(@NonNull Classroom classroom,
+                                                 @NonNull com.tim4it.classroom.attendance.dto.v1.Student student,
                                                  @NonNull String lectureId,
                                                  @NonNull LocalDateTime time) {
+        // check classroom lecture id with provided lecture id
         var lectureOpt = classroom.getScheduledData().stream()
                 .filter(scheduledData ->
                         Optional.ofNullable(scheduledData.getLecture().getId())
@@ -83,6 +73,19 @@ public class CheckInService implements CheckIn {
                     .lecture(Lecture.builder().build())
                     .build();
         }
+
+        // check if student has access to classroom
+        var studentAccess = student.getClassroomAccess().stream()
+                .filter(classroomAccess -> classroomAccess.equals(classroom.getId()))
+                .findFirst();
+        if (studentAccess.isEmpty()) {
+            return ClassroomCheckIn.builder()
+                    .description("You don't have access to selected classroom!")
+                    .lecture(Lecture.builder().build())
+                    .build();
+        }
+
+        // time based classroom check in
         var lecture = lectureOpt.get();
         if (time.isBefore(lecture.getStart())) {
             return checkInBeforeLectureStart(time, lecture);

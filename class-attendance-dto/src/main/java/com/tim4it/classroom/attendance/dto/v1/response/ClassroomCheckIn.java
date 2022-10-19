@@ -10,7 +10,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
-@Schema(description = "Check in additional data")
+@Schema(description = "Check in to classroom with additional data")
 @Value
 @Builder(toBuilder = true)
 @Jacksonized

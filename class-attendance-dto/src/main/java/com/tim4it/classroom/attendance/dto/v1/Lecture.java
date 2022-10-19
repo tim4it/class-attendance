@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
-@Schema(description = "Classroom data")
+@Schema(description = "Lecture data")
 @Value
 @Builder(toBuilder = true)
 @Jacksonized

@@ -46,7 +46,7 @@ class CheckInControllerSpec extends Specification {
         exception.getStatus() == HttpStatus.UNAUTHORIZED
     }
 
-    def "Check in controller - we don't have right classroom data"() {
+    def "Check in controller - student don't have right classroom data"() {
         given:
         def bodyTypeResponse = Argument.of(ClassroomCheckIn)
         def url = "/v1/check-in"
@@ -56,7 +56,7 @@ class CheckInControllerSpec extends Specification {
                                        .time("2022-12-12 08:22")
                                        .build()
         def request = HttpRequest.POST(url, checkInReq)
-                                 .header(HttpHeaders.AUTHORIZATION, "asdfjlhsdifuh2934fhnoiefn")
+                                 .header(HttpHeaders.AUTHORIZATION, "33e6913a-4ec3-11ed-bdc3-0242ac120002")
 
         when:
         client.toBlocking().retrieve(request, bodyTypeResponse)
@@ -76,7 +76,7 @@ class CheckInControllerSpec extends Specification {
                                        .time("2022-12-12 08:22")
                                        .build()
         def request = HttpRequest.POST(url, checkInReq)
-                                 .header(HttpHeaders.AUTHORIZATION, "asdfjlhsdifuh2934fhnoiefn")
+                                 .header(HttpHeaders.AUTHORIZATION, "33e6913a-4ec3-11ed-bdc3-0242ac120002")
 
         when:
         def result = client.toBlocking().retrieve(request, bodyTypeResponse)
@@ -97,7 +97,7 @@ class CheckInControllerSpec extends Specification {
                                        .time("2022-10-21 12:26")
                                        .build()
         def request = HttpRequest.POST(url, checkInReq)
-                                 .header(HttpHeaders.AUTHORIZATION, "asdfjlhsdifuh2934fhnoiefn")
+                                 .header(HttpHeaders.AUTHORIZATION, "33e6913a-4ec3-11ed-bdc3-0242ac120002")
 
         when:
         def result = client.toBlocking().retrieve(request, bodyTypeResponse)
@@ -124,7 +124,7 @@ class CheckInControllerSpec extends Specification {
                                        .time("2022-10-21 12:15")
                                        .build()
         def request = HttpRequest.POST(url, checkInReq)
-                                 .header(HttpHeaders.AUTHORIZATION, "asdfjlhsdifuh2934fhnoiefn")
+                                 .header(HttpHeaders.AUTHORIZATION, "33e6913a-4ec3-11ed-bdc3-0242ac120002")
 
         when:
         def result = client.toBlocking().retrieve(request, bodyTypeResponse)
@@ -145,7 +145,7 @@ class CheckInControllerSpec extends Specification {
                                        .time("2022-10-21 12:52")
                                        .build()
         def request = HttpRequest.POST(url, checkInReq)
-                                 .header(HttpHeaders.AUTHORIZATION, "asdfjlhsdifuh2934fhnoiefn")
+                                 .header(HttpHeaders.AUTHORIZATION, "33e6913a-4ec3-11ed-bdc3-0242ac120002")
 
         when:
         def result = client.toBlocking().retrieve(request, bodyTypeResponse)
@@ -166,7 +166,7 @@ class CheckInControllerSpec extends Specification {
                                        .time("2022-10-21 12:40")
                                        .build()
         def request = HttpRequest.POST(url, checkInReq)
-                                 .header(HttpHeaders.AUTHORIZATION, "asdfjlhsdifuh2934fhnoiefn")
+                                 .header(HttpHeaders.AUTHORIZATION, "33e6913a-4ec3-11ed-bdc3-0242ac120002")
 
         when:
         def result = client.toBlocking().retrieve(request, bodyTypeResponse)
@@ -181,5 +181,47 @@ class CheckInControllerSpec extends Specification {
             professor == "prof. Glenn Sciriozo"
             recording
         }
+    }
+
+    def "Check in controller - student has no access to classroom"() {
+        given:
+        def bodyTypeResponse = Argument.of(ClassroomCheckIn)
+        def url = "/v1/check-in"
+        def checkInReq = CheckInRequest.builder()
+                                       .classroomId("b3ecbc16-4ec7-11ed-bdc3-0242ac260104")
+                                       .lectureId("0d017dac-4ec6-11ed-bdc3-0242ac120002")
+                                       .time("2022-10-21 12:40")
+                                       .build()
+        def request = HttpRequest.POST(url, checkInReq)
+                                 .header(HttpHeaders.AUTHORIZATION, "c8c9b0c0-4ec3-11ed-bdc3-0242ac120002")
+
+        when:
+        def result = client.toBlocking().retrieve(request, bodyTypeResponse)
+
+        then:
+        result
+        result.description == "You don't have access to selected classroom!"
+        result.lecture.id == ""
+    }
+
+    def "Check in controller - wrong lecture data"() {
+        given:
+        def bodyTypeResponse = Argument.of(ClassroomCheckIn)
+        def url = "/v1/check-in"
+        def checkInReq = CheckInRequest.builder()
+                                       .classroomId("b3ecbc16-4ec7-11ed-bdc3-0242ac260104")
+                                       .lectureId("0d017dac-4ec6-11ed-bdc3-0242ac260602")
+                                       .time("2022-10-21 12:40")
+                                       .build()
+        def request = HttpRequest.POST(url, checkInReq)
+                                 .header(HttpHeaders.AUTHORIZATION, "c8c9b0c0-4ec3-11ed-bdc3-0242ac120002")
+
+        when:
+        def result = client.toBlocking().retrieve(request, bodyTypeResponse)
+
+        then:
+        result
+        result.description == "Can't check in - wrong lecture data selected!"
+        result.lecture.id == ""
     }
 }

@@ -25,12 +25,25 @@ public class Helper {
     public final int CHECK_IN_BEFORE_MINUTES = 10;
     public final int CHECK_IN_STARTED_MINUTES = 15;
 
+    /**
+     * Nullable, trimmed and check if string is empty
+     *
+     * @param value value String
+     * @return Optional String data
+     */
     public Optional<String> optString(String value) {
         return Optional.ofNullable(value)
                 .map(String::trim)
                 .filter(valueCheck -> !valueCheck.isEmpty());
     }
 
+    /**
+     * Validate current time from String to LocalDateTime. Here we use local date time - it is simplified only for this
+     * assignment. Otherwise, we use Zoned date time - date time is hard...
+     *
+     * @param time time in String format - human-readable
+     * @return converted date time to local date time
+     */
     public LocalDateTime validateCurrentDateTime(@NonNull String time) {
         try {
             return LocalDateTime.parse(time, FORMATTER);

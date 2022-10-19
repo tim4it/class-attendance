@@ -5,5 +5,11 @@ import reactor.core.publisher.Mono;
 
 public interface ClassRoom {
 
+    /**
+     * Find classroom by id
+     *
+     * @param classroomId classroom id
+     * @return found classroom full object, or empty classroom object if classroom is not found
+     */
     Mono<Classroom> findById(String classroomId);
 }

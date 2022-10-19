@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@OpenAPIDefinition(info = @Info(description = "Check in controller - log in and check in into selected classroom"))
+@OpenAPIDefinition(info = @Info(description = "Check in controller - log in and check in to selected classroom, version v1"))
 @Controller("/v1")
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class CheckInController {
@@ -30,8 +30,8 @@ public class CheckInController {
     @NonNull
     final CheckIn checkIn;
 
-    @Operation(summary = "Current activity for the specific classroom")
-    @ApiResponse(responseCode = "200", description = "Payment comparison succeed!",
+    @Operation(summary = "Student check in to specific classroom (QR code) to specific lecture")
+    @ApiResponse(responseCode = "200", description = "Check in succeed!",
             content = @Content(mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ClassroomCheckIn.class)))
     @ApiResponse(responseCode = "400", description = "Bad request")

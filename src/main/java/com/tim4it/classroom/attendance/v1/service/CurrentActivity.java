@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public interface CurrentActivity {
 
     /**
-     * Get current activity fro classroom
+     * Get current activity for specific classroom. This is basic implementation
      *
      * @param headers     headers
      * @param classroomId clasroom id
