@@ -1,5 +1,7 @@
 # Class attendance 
-Class attendance project
+Class attendance project.
+
+Assigment description: [Assignment](QR%20Check-In.pdf) 
 
 # Build an testing
 
